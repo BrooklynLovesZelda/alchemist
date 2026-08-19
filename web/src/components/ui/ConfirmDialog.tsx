@@ -1,6 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
-import { focusableElements, setAppShellInert } from "../../lib/focusUtils";
+import { useEffect, useState } from "react";
+import Modal from "./Modal";
 
 interface ConfirmDialogProps {
     open: boolean;
@@ -24,78 +23,6 @@ export default function ConfirmDialog({
     onClose,
 }: ConfirmDialogProps) {
     const [submitting, setSubmitting] = useState(false);
-    const panelRef = useRef<HTMLDivElement | null>(null);
-    const lastFocusedRef = useRef<HTMLElement | null>(null);
-
-    useEffect(() => {
-        if (!open) {
-            return;
-        }
-
-        setAppShellInert(true);
-        lastFocusedRef.current = document.activeElement as HTMLElement | null;
-
-        const panel = panelRef.current;
-        if (panel) {
-            const focusables = focusableElements(panel);
-            if (focusables.length > 0) {
-                focusables[0].focus();
-            } else {
-                panel.focus();
-            }
-        }
-
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (!open) {
-                return;
-            }
-
-            if (event.key === "Escape") {
-                event.preventDefault();
-                if (!submitting) {
-                    onClose();
-                }
-                return;
-            }
-
-            if (event.key !== "Tab") {
-                return;
-            }
-
-            const root = panelRef.current;
-            if (!root) {
-                return;
-            }
-
-            const els = focusableElements(root);
-            if (els.length === 0) {
-                event.preventDefault();
-                root.focus();
-                return;
-            }
-
-            const first = els[0];
-            const last = els[els.length - 1];
-            const current = document.activeElement as HTMLElement | null;
-
-            if (event.shiftKey && current === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && current === last) {
-                event.preventDefault();
-                first.focus();
-            }
-        };
-
-        document.addEventListener("keydown", onKeyDown);
-        return () => {
-            document.removeEventListener("keydown", onKeyDown);
-            setAppShellInert(false);
-            if (lastFocusedRef.current) {
-                lastFocusedRef.current.focus();
-            }
-        };
-    }, [open, onClose, submitting]);
 
     useEffect(() => {
         if (!open) {
@@ -103,70 +30,53 @@ export default function ConfirmDialog({
         }
     }, [open]);
 
-    if (!open || typeof document === "undefined") {
-        return null;
-    }
-
-    // Render outside the app shell so the focus-trap `inert` attribute (applied
-    // to `.app-shell`) does not propagate into the dialog and suppress its
-    // pointer events. Without this the confirm/cancel buttons are unclickable.
-    return createPortal(
-        <div className="fixed inset-0 z-[200]">
-            <button
-                type="button"
-                aria-label="Close dialog"
-                onClick={() => !submitting && onClose()}
-                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            />
-            <div className="absolute inset-0 flex items-center justify-center px-4">
-                <div
-                    ref={panelRef}
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="confirm-dialog-title"
-                    aria-describedby="confirm-dialog-description"
-                    tabIndex={-1}
-                    className="w-full max-w-sm rounded-lg border border-helios-line/30 bg-helios-surface p-6 shadow-2xl outline-none"
+    return (
+        <Modal
+            open={open}
+            onClose={onClose}
+            labelledBy="confirm-dialog-title"
+            describedBy="confirm-dialog-description"
+            maxWidth="max-w-sm"
+            panelClassName="p-6"
+            disableClose={submitting}
+            zIndexBase={200}
+        >
+            <h3 id="confirm-dialog-title" className="text-lg font-bold text-helios-ink">
+                {title}
+            </h3>
+            <p id="confirm-dialog-description" className="mt-2 text-sm text-helios-slate">
+                {description}
+            </p>
+            <div className="mt-6 flex justify-end gap-2">
+                <button
+                    type="button"
+                    onClick={onClose}
+                    disabled={submitting}
+                    className="rounded-lg px-4 py-2 text-sm font-semibold text-helios-slate hover:bg-helios-surface-soft"
                 >
-                    <h3 id="confirm-dialog-title" className="text-lg font-bold text-helios-ink">
-                        {title}
-                    </h3>
-                    <p id="confirm-dialog-description" className="mt-2 text-sm text-helios-slate">
-                        {description}
-                    </p>
-                    <div className="mt-6 flex justify-end gap-2">
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            disabled={submitting}
-                            className="rounded-lg px-4 py-2 text-sm font-semibold text-helios-slate hover:bg-helios-surface-soft"
-                        >
-                            {cancelLabel}
-                        </button>
-                        <button
-                            type="button"
-                            disabled={submitting}
-                            onClick={async () => {
-                                setSubmitting(true);
-                                try {
-                                    await onConfirm();
-                                    onClose();
-                                } finally {
-                                    setSubmitting(false);
-                                }
-                            }}
-                            className={
-                                tone === "danger"
-                                    ? "rounded-lg bg-status-error/20 px-4 py-2 text-sm font-semibold text-status-error hover:bg-status-error/30"
-                                    : "rounded-lg bg-helios-solar px-4 py-2 text-sm font-semibold text-helios-main hover:brightness-110"
-                            }
-                        >
-                            {submitting ? "Working..." : confirmLabel}
-                        </button>
-                    </div>
-                </div>
+                    {cancelLabel}
+                </button>
+                <button
+                    type="button"
+                    disabled={submitting}
+                    onClick={async () => {
+                        setSubmitting(true);
+                        try {
+                            await onConfirm();
+                            onClose();
+                        } finally {
+                            setSubmitting(false);
+                        }
+                    }}
+                    className={
+                        tone === "danger"
+                            ? "rounded-lg bg-status-error/20 px-4 py-2 text-sm font-semibold text-status-error hover:bg-status-error/30"
+                            : "rounded-lg bg-helios-solar px-4 py-2 text-sm font-semibold text-helios-main hover:brightness-110"
+                    }
+                >
+                    {submitting ? "Working..." : confirmLabel}
+                </button>
             </div>
-        </div>,
-        document.body
+        </Modal>
     );
 }

@@ -3,6 +3,8 @@ import { Bell, Plus, Trash2, Zap } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
 import ConfirmDialog from "./ui/ConfirmDialog";
+import Button from "./ui/Button";
+import SkeletonList from "./ui/Skeleton";
 
 type NotificationTargetType =
     | "discord_webhook"
@@ -356,13 +358,12 @@ export default function NotificationSettings() {
                         </div>
                     </div>
                 </div>
-                <button
+                <Button
                     onClick={() => void saveNotificationSettings()}
                     disabled={savingSchedule}
-                    className="rounded-lg border border-helios-line/20 px-4 py-2 text-sm font-semibold text-helios-ink hover:bg-helios-surface-soft transition-colors"
                 >
                     {savingSchedule ? "Saving..." : "Save Schedule Settings"}
-                </button>
+                </Button>
             </div>
 
             <div className="flex justify-end">
@@ -602,7 +603,7 @@ export default function NotificationSettings() {
             )}
 
             {loading ? (
-                <div className="text-sm text-helios-slate animate-pulse">Loading targets…</div>
+                <SkeletonList count={3} itemClassName="h-16 w-full" />
             ) : (
                 <div className="space-y-3">
                     {targets.map((target) => (
@@ -641,7 +642,7 @@ export default function NotificationSettings() {
                                 </button>
                                 <button
                                     onClick={() => setPendingDeleteId(target.id)}
-                                    className="p-2 text-helios-slate hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    className="p-2 text-helios-slate hover:text-status-error hover:bg-status-error/10 rounded-lg transition-colors"
                                     aria-label={`Delete notification target ${target.name}`}
                                 >
                                     <Trash2 size={16} />

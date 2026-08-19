@@ -147,7 +147,7 @@ export default function ResourceMonitor() {
         return (
             <div className="p-6 rounded-lg bg-helios-surface border border-helios-line/40 h-48 flex items-center justify-center">
                 <div className="text-center" aria-live="polite">
-                    <div className="text-sm text-red-400">Unable to load system stats.</div>
+                    <div className="text-sm text-status-error">Unable to load system stats.</div>
                     <div className="text-xs text-helios-slate/60 mt-2">{error} Retrying automatically...</div>
                 </div>
             </div>

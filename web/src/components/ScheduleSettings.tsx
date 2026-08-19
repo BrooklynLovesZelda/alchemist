@@ -191,9 +191,9 @@ export default function ScheduleSettings() {
                                     {win.start_time} - {win.end_time}
                                 </span>
                                 {win.enabled ? (
-                                    <span className="text-xs font-medium text-green-500 bg-green-500/10 px-2 py-0.5 rounded-full">Active</span>
+                                    <span className="text-xs font-medium text-status-success bg-status-success/10 px-2 py-0.5 rounded-full">Active</span>
                                 ) : (
-                                    <span className="text-xs font-medium text-red-500 bg-red-500/10 px-2 py-0.5 rounded-full">Disabled</span>
+                                    <span className="text-xs font-medium text-status-error bg-status-error/10 px-2 py-0.5 rounded-full">Disabled</span>
                                 )}
                             </div>
                             <div className="flex gap-1 mt-2">
@@ -209,7 +209,7 @@ export default function ScheduleSettings() {
                         </div>
                         <button
                             onClick={() => setPendingDeleteId(win.id)}
-                            className="p-2 text-helios-slate hover:text-red-500 hover:bg-red-500/10 rounded-lg transition-colors"
+                            className="p-2 text-helios-slate hover:text-status-error hover:bg-status-error/10 rounded-lg transition-colors"
                             aria-label={`Delete schedule ${win.start_time}-${win.end_time}`}
                         >
                             <Trash2 size={16} />

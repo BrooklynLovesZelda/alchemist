@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import { Save } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
+import { ToggleSwitch } from "./ui/FormControls";
+import Button from "./ui/Button";
+import SkeletonList from "./ui/Skeleton";
 
 interface SettingsBundleResponse {
     settings: {
@@ -58,17 +61,17 @@ export default function QualitySettings() {
     };
 
     if (loading) {
-        return <div className="p-8 text-helios-slate animate-pulse">Loading quality settings…</div>;
+        return <SkeletonList count={4} itemClassName="h-14 w-full" className="p-8" />;
     }
 
     if (!bundle) {
-        return <div className="p-8 text-red-500">Failed to load quality settings.</div>;
+        return <div className="p-8 text-status-error">Failed to load quality settings.</div>;
     }
 
     return (
         <div className="space-y-6" aria-live="polite">
             {error && (
-                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+                <div className="rounded-lg border border-status-error/20 bg-status-error/10 px-4 py-3 text-sm text-status-error">
                     {error}
                 </div>
             )}
@@ -80,24 +83,20 @@ export default function QualitySettings() {
                         Compute a quality score after encoding. <a href="/help/quality" className="text-helios-solar hover:underline">Learn how quality gates work.</a>
                     </p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={bundle.settings.quality.enable_vmaf}
-                        onChange={(e) => setBundle({
-                            ...bundle,
-                            settings: {
-                                ...bundle.settings,
-                                quality: {
-                                    ...bundle.settings.quality,
-                                    enable_vmaf: e.target.checked,
-                                },
+                <ToggleSwitch
+                    checked={bundle.settings.quality.enable_vmaf}
+                    onChange={(checked) => setBundle({
+                        ...bundle,
+                        settings: {
+                            ...bundle.settings,
+                            quality: {
+                                ...bundle.settings.quality,
+                                enable_vmaf: checked,
                             },
-                        })}
-                        className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-helios-solar"></div>
-                </label>
+                        },
+                    })}
+                    label="Enable VMAF"
+                />
             </div>
 
             <div className="space-y-3">
@@ -127,35 +126,30 @@ export default function QualitySettings() {
                     <p className="text-xs font-medium text-helios-slate">Revert on Low Quality</p>
                     <p className="text-xs text-helios-slate mt-1">Keep the source if the VMAF score drops below the threshold.</p>
                 </div>
-                <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                        type="checkbox"
-                        checked={bundle.settings.quality.revert_on_low_quality}
-                        onChange={(e) => setBundle({
-                            ...bundle,
-                            settings: {
-                                ...bundle.settings,
-                                quality: {
-                                    ...bundle.settings.quality,
-                                    revert_on_low_quality: e.target.checked,
-                                },
+                <ToggleSwitch
+                    checked={bundle.settings.quality.revert_on_low_quality}
+                    onChange={(checked) => setBundle({
+                        ...bundle,
+                        settings: {
+                            ...bundle.settings,
+                            quality: {
+                                ...bundle.settings.quality,
+                                revert_on_low_quality: checked,
                             },
-                        })}
-                        className="sr-only peer"
-                    />
-                    <div className="w-11 h-6 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-helios-solar"></div>
-                </label>
+                        },
+                    })}
+                    label="Revert on low quality"
+                />
             </div>
 
             <div className="flex justify-end">
-                <button
+                <Button
                     onClick={() => void handleSave()}
                     disabled={saving}
-                    className="flex items-center gap-2 rounded-md bg-helios-solar px-6 py-3 font-bold text-helios-main hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                     <Save size={18} />
                     {saving ? "Saving..." : "Save Quality Settings"}
-                </button>
+                </Button>
             </div>
         </div>
     );

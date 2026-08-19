@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { apiJson, isApiError } from "../lib/api";
+import { Skeleton } from "./ui/Skeleton";
 
 interface AggregatedStats {
     total_input_bytes: number;
@@ -150,8 +151,13 @@ export default function StatsCharts() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center py-20">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-helios-solar"></div>
+            <div className="space-y-6">
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                    {Array.from({ length: 4 }).map((_, i) => (
+                        <Skeleton key={i} className="h-24 w-full" />
+                    ))}
+                </div>
+                <Skeleton className="h-64 w-full" />
             </div>
         );
     }
@@ -159,7 +165,7 @@ export default function StatsCharts() {
     if (error && !stats) {
         return (
             <div className="text-center py-20 text-helios-slate">
-                <BarChart3 size={48} className="mx-auto mb-4 opacity-50 text-red-500" />
+                <BarChart3 size={48} className="mx-auto mb-4 opacity-50 text-status-error" />
                 <p className="text-helios-ink font-medium">Couldn't load statistics</p>
                 <p className="text-sm mt-2">{error}</p>
             </div>

@@ -1,4 +1,4 @@
-import { MoreHorizontal } from "lucide-react";
+import { Inbox, MoreHorizontal } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import type { RefObject, MutableRefObject } from "react";
 import type React from "react";
@@ -6,6 +6,7 @@ import type { Job, ConfirmConfig } from "./types";
 import { isJobActive, retryCountdown } from "./types";
 import { normalizeDecisionExplanation } from "./JobExplanations";
 import TimeDisplay from "../ui/TimeDisplay";
+import EmptyState from "../ui/EmptyState";
 import { cn } from "../../lib/cn";
 
 interface JobsTableProps {
@@ -85,8 +86,13 @@ export function JobsTable({
                         ))
                     ) : jobs.length === 0 ? (
                         <tr>
-                            <td colSpan={6} className="px-6 py-12 text-center text-helios-slate">
-                                No jobs found
+                            <td colSpan={6} className="px-6 py-8">
+                                <EmptyState
+                                    icon={Inbox}
+                                    title="No jobs found"
+                                    detail="Try a different tab, search, or filter."
+                                    className="border-none bg-transparent p-4"
+                                />
                             </td>
                         </tr>
                     ) : (
@@ -250,7 +256,7 @@ export function JobsTable({
                                                         <button
                                                             role="menuitem"
                                                             onClick={() => { closeMenu(); openConfirm({ title: "Delete job", body: "Delete this job from history?", confirmLabel: "Delete", confirmTone: "danger", onConfirm: () => handleAction(job.id, "delete") }); }}
-                                                            className="w-full px-4 py-2 text-left text-xs font-semibold text-red-500 hover:bg-red-500/5"
+                                                            className="w-full px-4 py-2 text-left text-xs font-semibold text-status-error hover:bg-status-error/5"
                                                         >
                                                             Delete
                                                         </button>

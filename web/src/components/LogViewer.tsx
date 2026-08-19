@@ -258,7 +258,7 @@ export default function LogViewer() {
     };
 
     return (
-        <div className="flex flex-col h-full rounded-lg border border-helios-line/40 bg-[#0d1117] overflow-hidden">
+        <div className="flex flex-col h-full rounded-lg border border-helios-line/40 bg-helios-surface overflow-hidden">
 
             {/* Toolbar */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-helios-line/20 bg-helios-surface/50 shrink-0">
@@ -337,7 +337,7 @@ export default function LogViewer() {
                 aria-live="polite"
             >
                 {streamError && (
-                    <div className="text-amber-400 text-center py-4 text-xs px-4">
+                    <div className="text-status-warning text-center py-4 text-xs px-4">
                         {streamError}
                     </div>
                 )}
@@ -353,8 +353,12 @@ export default function LogViewer() {
                 )}
 
                 {!loading && !streamError && logs.length > 0 && groupedLogs.length === 0 && (
-                    <div className="text-helios-slate/30 text-center py-12 text-xs italic">
-                        No logs found.
+                    <div className="flex flex-col items-center justify-center py-16 gap-3 text-helios-slate/60">
+                        <Terminal size={32} className="opacity-30" />
+                        <p className="text-sm font-medium">No matching log entries</p>
+                        <p className="text-xs text-center max-w-xs">
+                            Try a different filter or level.
+                        </p>
                     </div>
                 )}
 

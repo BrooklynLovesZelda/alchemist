@@ -1,9 +1,8 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useState, useEffect } from "react";
 import { X, Terminal, Server, Cpu, Activity, ShieldCheck, Box, Download, RefreshCw, type LucideIcon } from "lucide-react";
 import { apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
-import { focusableElements, setAppShellInert } from "../lib/focusUtils";
+import Modal from "./ui/Modal";
 
 interface SystemInfo {
     ffmpeg_version: string;
@@ -48,8 +47,6 @@ export default function AboutDialog({ isOpen, onClose, originRect }: AboutDialog
     const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null);
     const [updateLoading, setUpdateLoading] = useState(false);
     const [installing, setInstalling] = useState(false);
-    const dialogRef = useRef<HTMLDivElement | null>(null);
-    const lastFocusedRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
         if (isOpen && !info) {
@@ -107,172 +104,72 @@ export default function AboutDialog({ isOpen, onClose, originRect }: AboutDialog
         }
     };
 
-    useEffect(() => {
-        if (!isOpen) {
-            return;
-        }
-
-        setAppShellInert(true);
-        lastFocusedRef.current = document.activeElement as HTMLElement | null;
-
-        const dialog = dialogRef.current;
-        if (dialog) {
-            const focusables = focusableElements(dialog);
-            if (focusables.length > 0) {
-                focusables[0].focus();
-            } else {
-                dialog.focus();
-            }
-        }
-
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (!isOpen) {
-                return;
-            }
-
-            if (event.key === "Escape") {
-                event.preventDefault();
-                onClose();
-                return;
-            }
-
-            if (event.key !== "Tab") {
-                return;
-            }
-
-            const root = dialogRef.current;
-            if (!root) {
-                return;
-            }
-
-            const focusables = focusableElements(root);
-            if (focusables.length === 0) {
-                event.preventDefault();
-                root.focus();
-                return;
-            }
-
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            const current = document.activeElement as HTMLElement | null;
-
-            if (event.shiftKey && current === first) {
-                event.preventDefault();
-                last.focus();
-            } else if (!event.shiftKey && current === last) {
-                event.preventDefault();
-                first.focus();
-            }
-        };
-
-        document.addEventListener("keydown", onKeyDown);
-        return () => {
-            document.removeEventListener("keydown", onKeyDown);
-            setAppShellInert(false);
-            if (lastFocusedRef.current) {
-                lastFocusedRef.current.focus();
-            }
-        };
-    }, [isOpen, onClose]);
-
     return (
-        <AnimatePresence>
-            {isOpen && (
-                <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
+        <Modal
+            open={isOpen}
+            onClose={onClose}
+            labelledBy="about-dialog-title"
+            maxWidth="max-w-lg"
+            panelClassName="rounded-xl border-helios-line/30 relative"
+            originRect={originRect}
+            zIndexBase={50}
+        >
+            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-helios-solar/10 to-transparent pointer-events-none" />
+
+            <div className="p-8 relative">
+                <div className="flex items-center justify-end mb-6">
+                    <button
                         onClick={onClose}
-                        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+                        className="p-2 hover:bg-helios-surface-soft rounded-full text-helios-slate hover:text-helios-ink transition-colors"
                     >
-                        <motion.div
-                            initial={(() => {
-                                if (originRect && typeof window !== "undefined") {
-                                    const buttonCenterX = originRect.left + originRect.width / 2;
-                                    const buttonCenterY = originRect.top + originRect.height / 2;
-                                    const viewportCenterX = window.innerWidth / 2;
-                                    const viewportCenterY = window.innerHeight / 2;
-                                    return {
-                                        opacity: 0,
-                                        scale: 0.4,
-                                        x: buttonCenterX - viewportCenterX,
-                                        y: buttonCenterY - viewportCenterY,
-                                    };
-                                }
-                                return { opacity: 0, scale: 0.96, y: 8 };
-                            })()}
-                            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.96, y: 8 }}
-                            transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-                            onClick={e => e.stopPropagation()}
-                            ref={dialogRef}
-                            role="dialog"
-                            aria-modal="true"
-                            aria-labelledby="about-dialog-title"
-                            tabIndex={-1}
-                            className="w-full max-w-lg bg-helios-surface border border-helios-line/30 rounded-xl shadow-2xl overflow-hidden relative"
-                        >
-                            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-helios-solar/10 to-transparent pointer-events-none" />
+                        <X size={20} />
+                    </button>
+                </div>
 
-                            <div className="p-8 relative">
-                                <div className="flex items-center justify-end mb-6">
-                                    <button
-                                        onClick={onClose}
-                                        className="p-2 hover:bg-helios-surface-soft rounded-full text-helios-slate hover:text-helios-ink transition-colors"
-                                    >
-                                        <X size={20} />
-                                    </button>
-                                </div>
+                <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-1">
+                        <h2 id="about-dialog-title" className="text-3xl font-extrabold text-helios-ink tracking-tight">Alchemist</h2>
+                        {info && (
+                            <span className="px-2 py-0.5 rounded-full bg-helios-solar/10 text-helios-solar text-[10px] font-bold uppercase tracking-wider border border-helios-solar/20">
+                                v{info.version}
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-helios-slate font-medium">Professional Media Transcoding Agent</p>
+                </div>
 
-                                <div className="mb-8">
-                                    <div className="flex items-center gap-3 mb-1">
-                                        <h2 id="about-dialog-title" className="text-3xl font-extrabold text-helios-ink tracking-tight">Alchemist</h2>
-                                        {info && (
-                                            <span className="px-2 py-0.5 rounded-full bg-helios-solar/10 text-helios-solar text-[10px] font-bold uppercase tracking-wider border border-helios-solar/20">
-                                                v{info.version}
-                                            </span>
-                                        )}
-                                    </div>
-                                    <p className="text-helios-slate font-medium">Professional Media Transcoding Agent</p>
-                                </div>
+                {info ? (
+                    <div className="space-y-3">
+                        <InfoRow icon={Terminal} label="Version" value={`v${info.version}`} />
+                        <InfoRow icon={Activity} label="FFmpeg" value={info.ffmpeg_version} />
+                        <InfoRow icon={Server} label="System" value={info.os_version} />
+                        <InfoRow icon={Cpu} label="Hardware" value={`${info.cpu_count} Cores / ${info.total_memory_gb} GB RAM`} />
+                        <InfoRow icon={Box} label="Environment" value={info.is_docker ? "Docker Container" : "Native Host"} />
+                        <InfoRow icon={ShieldCheck} label="Telemetry" value={info.telemetry_enabled ? "Enabled" : "Disabled"} />
+                        {updateInfo && (
+                            <UpdatePanel
+                                updateInfo={updateInfo}
+                                updateLoading={updateLoading}
+                                installing={installing}
+                                onRefresh={refreshUpdateInfo}
+                                onInstall={installUpdate}
+                            />
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex justify-center p-8">
+                        <div className="w-6 h-6 border-2 border-helios-solar border-t-transparent rounded-full animate-spin" />
+                    </div>
+                )}
 
-                                {info ? (
-                                    <div className="space-y-3">
-                                        <InfoRow icon={Terminal} label="Version" value={`v${info.version}`} />
-                                        <InfoRow icon={Activity} label="FFmpeg" value={info.ffmpeg_version} />
-                                        <InfoRow icon={Server} label="System" value={info.os_version} />
-                                        <InfoRow icon={Cpu} label="Hardware" value={`${info.cpu_count} Cores / ${info.total_memory_gb} GB RAM`} />
-                                        <InfoRow icon={Box} label="Environment" value={info.is_docker ? "Docker Container" : "Native Host"} />
-                                        <InfoRow icon={ShieldCheck} label="Telemetry" value={info.telemetry_enabled ? "Enabled" : "Disabled"} />
-                                        {updateInfo && (
-                                            <UpdatePanel
-                                                updateInfo={updateInfo}
-                                                updateLoading={updateLoading}
-                                                installing={installing}
-                                                onRefresh={refreshUpdateInfo}
-                                                onInstall={installUpdate}
-                                            />
-                                        )}
-                                    </div>
-                                ) : (
-                                    <div className="flex justify-center p-8">
-                                        <div className="w-6 h-6 border-2 border-helios-solar border-t-transparent rounded-full animate-spin" />
-                                    </div>
-                                )}
-
-                                <div className="mt-8 pt-6 border-t border-helios-line/10 text-center">
-                                    <p className="text-xs text-helios-slate/60">
-                                        &copy; {new Date().getFullYear()} Alchemist Contributors. <br />
-                                        Released under AGPL-3.0 License.
-                                    </p>
-                                </div>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                </>
-            )}
-        </AnimatePresence>
+                <div className="mt-8 pt-6 border-t border-helios-line/10 text-center">
+                    <p className="text-xs text-helios-slate/60">
+                        &copy; {new Date().getFullYear()} Alchemist Contributors. <br />
+                        Released under AGPL-3.0 License.
+                    </p>
+                </div>
+            </div>
+        </Modal>
     );
 }
 

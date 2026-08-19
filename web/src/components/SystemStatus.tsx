@@ -77,7 +77,7 @@ export default function SystemStatus() {
                 <span className="text-xs font-bold text-helios-slate uppercase tracking-wider">
                     {error ? "Status Unavailable" : "Loading Status..."}
                 </span>
-                <span className={`w-2 h-2 rounded-full ${error ? "bg-red-500/70" : "bg-helios-slate/50 animate-pulse"}`}></span>
+                <span className={`w-2 h-2 rounded-full ${error ? "bg-status-error/70" : "bg-helios-slate/50 animate-pulse"}`}></span>
             </div>
         );
     }

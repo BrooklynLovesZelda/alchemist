@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertCircle, AlertTriangle, CheckCircle2, Info, X, type LucideIcon } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { subscribeToToasts, type ToastKind, type ToastMessage } from "../../lib/toast";
 
 const DEFAULT_DURATION_MS = 3500;
@@ -21,7 +22,7 @@ function kindStyles(kind: ToastKind): { icon: LucideIcon; className: string } {
     if (kind === "warning") {
         return {
             icon: AlertTriangle,
-            className: "border-amber-500/35 bg-helios-surface/95 text-amber-500 supports-[backdrop-filter]:bg-helios-surface/80 backdrop-blur-xl",
+            className: "border-status-warning/35 bg-helios-surface/95 text-status-warning supports-[backdrop-filter]:bg-helios-surface/80 backdrop-blur-xl",
         };
     }
     return {
@@ -131,38 +132,45 @@ export default function ToastRegion() {
                 {liveMessage}
             </div>
             <div className="fixed top-4 right-4 z-[300] flex w-[min(92vw,360px)] flex-col gap-2 pointer-events-none">
-                {toasts.map((toast) => {
-                    const { icon: Icon, className } = kindStyles(toast.kind);
-                    return (
-                        <div
-                            key={toast.id}
-                            role={toast.kind === "error" ? "alert" : "status"}
-                            className={`pointer-events-auto rounded-lg border p-3 shadow-xl shadow-black/30 ${className}`}
-                            onMouseEnter={() => setHoveredId(toast.id)}
-                            onMouseLeave={() => setHoveredId((prev) => (prev === toast.id ? null : prev))}
-                            onFocus={() => setHoveredId(toast.id)}
-                            onBlur={() => setHoveredId((prev) => (prev === toast.id ? null : prev))}
-                        >
-                            <div className="flex items-start gap-2">
-                                <Icon size={16} />
-                                <div className="min-w-0 flex-1">
-                                    {toast.title && (
-                                        <p className="text-xs font-medium">{toast.title}</p>
-                                    )}
-                                    <p className="text-sm break-words">{toast.message}</p>
+                <AnimatePresence initial={false}>
+                    {toasts.map((toast) => {
+                        const { icon: Icon, className } = kindStyles(toast.kind);
+                        return (
+                            <motion.div
+                                key={toast.id}
+                                layout
+                                initial={{ opacity: 0, x: 40, scale: 0.95 }}
+                                animate={{ opacity: 1, x: 0, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.9, transition: { duration: 0.15 } }}
+                                transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                                role={toast.kind === "error" ? "alert" : "status"}
+                                className={`pointer-events-auto rounded-lg border p-3 shadow-xl shadow-black/30 ${className}`}
+                                onMouseEnter={() => setHoveredId(toast.id)}
+                                onMouseLeave={() => setHoveredId((prev) => (prev === toast.id ? null : prev))}
+                                onFocus={() => setHoveredId(toast.id)}
+                                onBlur={() => setHoveredId((prev) => (prev === toast.id ? null : prev))}
+                            >
+                                <div className="flex items-start gap-2">
+                                    <Icon size={16} />
+                                    <div className="min-w-0 flex-1">
+                                        {toast.title && (
+                                            <p className="text-xs font-medium">{toast.title}</p>
+                                        )}
+                                        <p className="text-sm break-words">{toast.message}</p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        className="rounded p-1 hover:bg-black/10"
+                                        aria-label="Dismiss notification"
+                                        onClick={() => dismissToast(toast.id)}
+                                    >
+                                        <X size={14} />
+                                    </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    className="rounded p-1 hover:bg-black/10"
-                                    aria-label="Dismiss notification"
-                                    onClick={() => dismissToast(toast.id)}
-                                >
-                                    <X size={14} />
-                                </button>
-                            </div>
-                        </div>
-                    );
-                })}
+                            </motion.div>
+                        );
+                    })}
+                </AnimatePresence>
             </div>
         </>
     );

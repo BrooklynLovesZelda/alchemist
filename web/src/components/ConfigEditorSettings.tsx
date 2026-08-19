@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { CheckCircle2, RefreshCw, Save } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
+import Button from "./ui/Button";
+import SkeletonList from "./ui/Skeleton";
 
 interface SettingsConfigResponse {
     raw_toml: string;
@@ -95,7 +97,7 @@ export default function ConfigEditorSettings() {
     };
 
     if (loading) {
-        return <div className="p-8 text-helios-slate animate-pulse">Loading config editor…</div>;
+        return <SkeletonList count={1} itemClassName="h-[520px] w-full" className="p-8" />;
     }
 
     return (
@@ -119,7 +121,7 @@ export default function ConfigEditorSettings() {
             </div>
 
             {error && (
-                <div className="rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+                <div className="rounded-lg border border-status-error/20 bg-status-error/10 px-4 py-3 text-sm text-status-error">
                     {error}
                 </div>
             )}
@@ -165,22 +167,21 @@ export default function ConfigEditorSettings() {
             )}
 
             <div className="flex flex-wrap justify-end gap-3">
-                <button
+                <Button
                     onClick={() => void handleValidate()}
                     disabled={validating || saving}
-                    className="flex items-center gap-2 rounded-xl border border-helios-line/30 bg-helios-surface px-6 py-3 font-bold text-helios-ink hover:bg-helios-surface-soft transition-colors disabled:opacity-50"
+                    variant="secondary"
                 >
                     <CheckCircle2 size={18} />
                     {validating ? "Validating..." : "Validate"}
-                </button>
-                <button
+                </Button>
+                <Button
                     onClick={() => void handleSave()}
                     disabled={saving}
-                    className="flex items-center gap-2 rounded-xl bg-helios-solar px-6 py-3 font-bold text-helios-main hover:opacity-90 transition-opacity disabled:opacity-50"
                 >
                     <Save size={18} />
                     {saving ? "Saving..." : "Validate & Apply"}
-                </button>
+                </Button>
             </div>
         </div>
     );

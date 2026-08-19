@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Cpu, Zap, HardDrive, CheckCircle2, AlertCircle, XCircle } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
+import { ToggleSwitch } from "./ui/FormControls";
 
 interface HardwareInfo {
     vendor: string;
@@ -197,7 +198,7 @@ export default function HardwareSettings() {
 
     if (loadError) {
         return (
-            <div className="p-6 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg flex items-center gap-3" aria-live="polite">
+            <div className="p-6 bg-status-error/10 border border-status-error/20 text-status-error rounded-lg flex items-center gap-3" aria-live="polite">
                 <AlertCircle size={20} />
                 <span className="font-semibold">{loadError}</span>
             </div>
@@ -259,7 +260,7 @@ export default function HardwareSettings() {
     return (
         <div className="flex flex-col gap-6" aria-live="polite">
             {saveError && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm font-semibold">
+                <div className="p-4 bg-status-error/10 border border-status-error/20 text-status-error rounded-lg text-sm font-semibold">
                     {saveError}
                 </div>
             )}
@@ -338,9 +339,9 @@ export default function HardwareSettings() {
                                 <div className="text-emerald-500">Succeeded</div>
                                 <div className="mt-1 font-bold text-emerald-500">{info.probe_summary.succeeded}</div>
                             </div>
-                            <div className="rounded-lg bg-red-500/10 border border-red-500/20 px-3 py-2">
-                                <div className="text-red-500">Failed</div>
-                                <div className="mt-1 font-bold text-red-500">{info.probe_summary.failed}</div>
+                            <div className="rounded-lg bg-status-error/10 border border-status-error/20 px-3 py-2">
+                                <div className="text-status-error">Failed</div>
+                                <div className="mt-1 font-bold text-status-error">{info.probe_summary.failed}</div>
                             </div>
                         </div>
                     )}
@@ -401,7 +402,7 @@ export default function HardwareSettings() {
                 </summary>
                 <div className="mt-3 space-y-2">
                     {probeLog.entries.length > 0 ? probeLog.entries.map((entry, index) => {
-                        const iconClassName = entry.success ? "text-emerald-500" : "text-red-500";
+                        const iconClassName = entry.success ? "text-emerald-500" : "text-status-error";
 
                         return (
                             <details
@@ -460,17 +461,12 @@ export default function HardwareSettings() {
                                 </p>
                             </div>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                aria-label="Allow CPU Encoding"
-                                checked={settings.allow_cpu_encoding}
-                                onChange={(e) => void saveImmediateSettings({ allow_cpu_encoding: e.target.checked })}
-                                disabled={saving}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 rounded-full bg-helios-line/20 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:bg-helios-ink after:content-[''] after:transition-all peer-checked:after:translate-x-full peer-checked:bg-helios-solar peer-disabled:cursor-not-allowed peer-disabled:opacity-60"></div>
-                        </label>
+                        <ToggleSwitch
+                            checked={settings.allow_cpu_encoding}
+                            onChange={(checked) => void saveImmediateSettings({ allow_cpu_encoding: checked })}
+                            disabled={saving}
+                            label="Allow CPU Encoding"
+                        />
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-helios-line/10 pt-5">
@@ -514,17 +510,12 @@ export default function HardwareSettings() {
                             <p className="text-xs font-bold text-helios-slate">Allow CPU Fallback</p>
                             <p className="text-xs text-helios-slate mt-1">Permit software encoding when the preferred GPU path is unavailable.</p>
                         </div>
-                        <label className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                aria-label="Allow CPU Fallback"
-                                checked={settings.allow_cpu_fallback}
-                                onChange={(e) => void saveImmediateSettings({ allow_cpu_fallback: e.target.checked })}
-                                disabled={saving}
-                                className="sr-only peer"
-                            />
-                            <div className="w-11 h-6 rounded-full bg-helios-line/20 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:bg-helios-ink after:content-[''] after:transition-all peer-checked:after:translate-x-full peer-checked:bg-helios-solar peer-disabled:cursor-not-allowed peer-disabled:opacity-60"></div>
-                        </label>
+                        <ToggleSwitch
+                            checked={settings.allow_cpu_fallback}
+                            onChange={(checked) => void saveImmediateSettings({ allow_cpu_fallback: checked })}
+                            disabled={saving}
+                            label="Allow CPU Fallback"
+                        />
                     </div>
 
                     <div className="border-t border-helios-line/10 pt-5 space-y-3">

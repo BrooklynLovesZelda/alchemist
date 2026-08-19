@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { createPortal } from "react-dom";
 import { RefreshCw, Trash2, Ban, Plus, X } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { useDebouncedValue } from "../lib/useDebouncedValue";
 import { showToast } from "../lib/toast";
 import { cn } from "../lib/cn";
 import ConfirmDialog from "./ui/ConfirmDialog";
+import Modal from "./ui/Modal";
 import { withErrorBoundary } from "./ErrorBoundary";
 import type { Job, TabType, SortField, CountMessageResponse, SavedJobView } from "./jobs/types";
 import { isJobActive } from "./jobs/types";
@@ -711,7 +711,7 @@ function JobManager() {
                     {" "}active
                 </span>
                 <span>
-                    <span className="font-medium text-red-500">{failedCount}</span>
+                    <span className="font-medium text-status-error">{failedCount}</span>
                     {" "}failed
                 </span>
                 <span>
@@ -755,7 +755,7 @@ function JobManager() {
                             }}
                             className={cn(
                                 "absolute right-2 p-0.5 rounded-full hover:bg-black/10 transition-colors opacity-0 group-hover:opacity-100",
-                                activeViewId === view.id ? "text-white/80 hover:text-white" : "text-helios-slate hover:text-red-500"
+                                activeViewId === view.id ? "text-white/80 hover:text-white" : "text-helios-slate hover:text-status-error"
                             )}
                             title="Delete view"
                             aria-label={`Delete ${view.label}`}
@@ -860,7 +860,7 @@ function JobManager() {
                                 })
                             }
                             disabled={hasSelectedActiveJobs}
-                            className="p-2 hover:bg-red-500/10 rounded-lg text-red-500 disabled:opacity-40 disabled:hover:bg-transparent"
+                            className="p-2 hover:bg-status-error/10 rounded-lg text-status-error disabled:opacity-40 disabled:hover:bg-transparent"
                             title="Delete"
                         >
                             <Trash2 size={18} />
@@ -923,118 +923,98 @@ function JobManager() {
                             onConfirm: () => clearCompleted(),
                         })
                     }
-                    className="text-xs text-red-500 hover:text-red-400 font-bold flex items-center gap-1 transition-colors"
+                    className="text-xs text-status-error hover:text-status-error/80 font-bold flex items-center gap-1 transition-colors"
                 >
                     <Trash2 size={12} /> Clear Completed
                 </button>
             </div>
 
             {/* Detail Overlay */}
-            {typeof document !== "undefined" && createPortal(
-                <JobDetailModal
-                    focusedJob={focusedJob}
-                    detailDialogRef={detailDialogRef}
-                    detailLoading={detailLoading}
-                    onClose={closeJobDetails}
-                    focusedDecision={focusedDecision}
-                    focusedFailure={focusedFailure}
-                    focusedJobLogs={focusedJobLogs}
-                    shouldShowFfmpegOutput={shouldShowFfmpegOutput}
-                    completedEncodeStats={completedEncodeStats}
-                    focusedEmptyState={focusedEmptyState}
-                    openConfirm={openConfirm}
-                    handleAction={handleAction}
-                    handlePriority={handlePriority}
-                    getStatusBadge={getStatusBadge}
-                />,
-                document.body
-            )}
+            <JobDetailModal
+                focusedJob={focusedJob}
+                detailDialogRef={detailDialogRef}
+                detailLoading={detailLoading}
+                onClose={closeJobDetails}
+                focusedDecision={focusedDecision}
+                focusedFailure={focusedFailure}
+                focusedJobLogs={focusedJobLogs}
+                shouldShowFfmpegOutput={shouldShowFfmpegOutput}
+                completedEncodeStats={completedEncodeStats}
+                focusedEmptyState={focusedEmptyState}
+                openConfirm={openConfirm}
+                handleAction={handleAction}
+                handlePriority={handlePriority}
+                getStatusBadge={getStatusBadge}
+            />
 
-            {typeof document !== "undefined" && createPortal(
-                <EnqueuePathDialog
-                    open={enqueueDialogOpen}
-                    path={enqueuePath}
-                    submitting={enqueueSubmitting}
-                    onPathChange={setEnqueuePath}
-                    onClose={() => {
-                        if (!enqueueSubmitting) {
-                            setEnqueueDialogOpen(false);
-                        }
-                    }}
-                    onSubmit={handleEnqueuePath}
-                />,
-                document.body,
-            )}
+            <EnqueuePathDialog
+                open={enqueueDialogOpen}
+                path={enqueuePath}
+                submitting={enqueueSubmitting}
+                onPathChange={setEnqueuePath}
+                onClose={() => {
+                    if (!enqueueSubmitting) {
+                        setEnqueueDialogOpen(false);
+                    }
+                }}
+                onSubmit={handleEnqueuePath}
+            />
 
-            {typeof document !== "undefined" && createPortal(
-                <SaveViewDialog
-                    open={saveViewOpen}
-                    name={saveViewName}
-                    submitting={saveViewSubmitting}
-                    existingLabels={savedViews.map((view) => view.label)}
-                    onNameChange={setSaveViewName}
-                    onClose={() => {
-                        if (!saveViewSubmitting) {
-                            setSaveViewOpen(false);
-                        }
-                    }}
-                    onSubmit={handleSaveViewSubmit}
-                />,
-                document.body,
-            )}
+            <SaveViewDialog
+                open={saveViewOpen}
+                name={saveViewName}
+                submitting={saveViewSubmitting}
+                existingLabels={savedViews.map((view) => view.label)}
+                onNameChange={setSaveViewName}
+                onClose={() => {
+                    if (!saveViewSubmitting) {
+                        setSaveViewOpen(false);
+                    }
+                }}
+                onSubmit={handleSaveViewSubmit}
+            />
 
-            {typeof document !== "undefined" && shortcutsOpen && createPortal(
-                <div className="fixed inset-0 z-[210]">
+            <Modal
+                open={shortcutsOpen}
+                onClose={() => setShortcutsOpen(false)}
+                labelledBy="jobs-shortcuts-title"
+                maxWidth="max-w-sm"
+                panelClassName="p-6"
+                zIndexBase={210}
+            >
+                <div className="flex items-start justify-between gap-4">
+                    <div>
+                        <h3 id="jobs-shortcuts-title" className="text-lg font-bold text-helios-ink">
+                            Keyboard shortcuts
+                        </h3>
+                        <p className="mt-1 text-sm text-helios-slate">
+                            Jobs page
+                        </p>
+                    </div>
                     <button
                         type="button"
-                        aria-label="Close shortcuts"
                         onClick={() => setShortcutsOpen(false)}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-                    />
-                    <div className="absolute inset-0 flex items-center justify-center px-4">
-                        <div
-                            role="dialog"
-                            aria-modal="true"
-                            aria-labelledby="jobs-shortcuts-title"
-                            className="w-full max-w-sm rounded-lg border border-helios-line/30 bg-helios-surface p-6 shadow-2xl outline-none"
-                        >
-                            <div className="flex items-start justify-between gap-4">
-                                <div>
-                                    <h3 id="jobs-shortcuts-title" className="text-lg font-bold text-helios-ink">
-                                        Keyboard shortcuts
-                                    </h3>
-                                    <p className="mt-1 text-sm text-helios-slate">
-                                        Jobs page
-                                    </p>
-                                </div>
-                                <button
-                                    type="button"
-                                    onClick={() => setShortcutsOpen(false)}
-                                    className="rounded-lg p-2 text-helios-slate hover:bg-helios-surface-soft hover:text-helios-ink"
-                                    aria-label="Close shortcuts"
-                                >
-                                    <X size={16} />
-                                </button>
-                            </div>
-                            <div className="mt-5 space-y-3 text-sm">
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-helios-slate">Focus search</span>
-                                    <kbd className="rounded-md border border-helios-line/30 bg-helios-surface-soft px-2 py-1 font-mono text-xs text-helios-ink">/</kbd>
-                                </div>
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-helios-slate">Show shortcuts</span>
-                                    <kbd className="rounded-md border border-helios-line/30 bg-helios-surface-soft px-2 py-1 font-mono text-xs text-helios-ink">?</kbd>
-                                </div>
-                                <div className="flex items-center justify-between gap-4">
-                                    <span className="text-helios-slate">Close dialogs</span>
-                                    <kbd className="rounded-md border border-helios-line/30 bg-helios-surface-soft px-2 py-1 font-mono text-xs text-helios-ink">Esc</kbd>
-                                </div>
-                            </div>
-                        </div>
+                        className="rounded-lg p-2 text-helios-slate hover:bg-helios-surface-soft hover:text-helios-ink"
+                        aria-label="Close shortcuts"
+                    >
+                        <X size={16} />
+                    </button>
+                </div>
+                <div className="mt-5 space-y-3 text-sm">
+                    <div className="flex items-center justify-between gap-4">
+                        <span className="text-helios-slate">Focus search</span>
+                        <kbd className="rounded-md border border-helios-line/30 bg-helios-surface-soft px-2 py-1 font-mono text-xs text-helios-ink">/</kbd>
                     </div>
-                </div>,
-                document.body,
-            )}
+                    <div className="flex items-center justify-between gap-4">
+                        <span className="text-helios-slate">Show shortcuts</span>
+                        <kbd className="rounded-md border border-helios-line/30 bg-helios-surface-soft px-2 py-1 font-mono text-xs text-helios-ink">?</kbd>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                        <span className="text-helios-slate">Close dialogs</span>
+                        <kbd className="rounded-md border border-helios-line/30 bg-helios-surface-soft px-2 py-1 font-mono text-xs text-helios-ink">Esc</kbd>
+                    </div>
+                </div>
+            </Modal>
 
             <ConfirmDialog
                 open={confirmState !== null}

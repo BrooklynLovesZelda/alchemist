@@ -1,8 +1,7 @@
-import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { FileCog, Gauge, Info, ShieldCheck, SlidersHorizontal, Trash2, Video, Zap } from "lucide-react";
 import clsx from "clsx";
-import { LabeledInput, LabeledSelect, RangeControl, ToggleRow } from "./SetupControls";
+import { LabeledInput, LabeledSelect, RangeControl, ToggleRow, SectionHeader, StepHeader } from "./SetupControls";
 import type { SetupSettings } from "./types";
 
 interface ProcessingStepProps {
@@ -12,28 +11,6 @@ interface ProcessingStepProps {
     onTranscodeChange: (value: SetupSettings["transcode"]) => void;
     onFilesChange: (value: SetupSettings["files"]) => void;
     onQualityChange: (value: SetupSettings["quality"]) => void;
-}
-
-interface SectionHeaderProps {
-    icon: ReactNode;
-    eyebrow: string;
-    title: string;
-    body: string;
-}
-
-function SectionHeader({ icon, eyebrow, title, body }: SectionHeaderProps) {
-    return (
-        <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-helios-solar/10 p-2 text-helios-solar">
-                {icon}
-            </div>
-            <div>
-                <p className="text-xs font-semibold uppercase text-helios-slate/70">{eyebrow}</p>
-                <h3 className="mt-1 text-base font-semibold text-helios-ink">{title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-helios-slate">{body}</p>
-            </div>
-        </div>
-    );
 }
 
 const formatPercent = (value: number) => `${Math.round(value * 100)}%`;
@@ -62,13 +39,12 @@ export default function ProcessingStep({ transcode, files, quality, onTranscodeC
     return (
         <motion.div key="processing" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
             <div className="space-y-2">
-                <h2 className="flex items-center gap-2 text-xl font-semibold text-helios-ink">
-                    <Video size={20} className="text-helios-solar" />
-                    Processing, Output & Quality
-                </h2>
-                <p className="max-w-3xl text-sm leading-relaxed text-helios-slate">
-                    Choose the target format, decide how conservative Alchemist should be, and keep output behavior explicit before the engine touches real media.
-                </p>
+                <StepHeader
+                    icon={<Video size={20} className="text-helios-solar" />}
+                    title="Processing, Output & Quality"
+                    subtitle="Choose the target format, decide how conservative Alchemist should be, and keep output behavior explicit before the engine touches real media."
+                    className="max-w-3xl space-y-2"
+                />
                 <div className="grid gap-3 sm:grid-cols-3">
                     <div className="rounded-lg border border-helios-line/20 bg-helios-surface-soft/40 px-4 py-3">
                         <p className="text-xs font-medium text-helios-slate">Codec</p>
@@ -226,8 +202,8 @@ export default function ProcessingStep({ transcode, files, quality, onTranscodeC
                     {(files.delete_source || quality.enable_vmaf) && (
                         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
                             {files.delete_source && (
-                                <div className="flex items-start gap-3 rounded-lg border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-helios-ink">
-                                    <Trash2 size={16} className="mt-0.5 shrink-0 text-red-400" />
+                                <div className="flex items-start gap-3 rounded-lg border border-status-error/25 bg-status-error/10 px-4 py-3 text-sm text-helios-ink">
+                                    <Trash2 size={16} className="mt-0.5 shrink-0 text-status-error" />
                                     <p className="leading-relaxed">Source deletion is only safe after you have verified output quality and backup behavior on real files.</p>
                                 </div>
                             )}

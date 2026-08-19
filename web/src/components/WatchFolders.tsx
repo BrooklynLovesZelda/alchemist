@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { X, Play, Pencil, Eye } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
-import { focusableElements, setAppShellInert } from "../lib/focusUtils";
 import ConfirmDialog from "./ui/ConfirmDialog";
 import ServerDirectoryPicker from "./ui/ServerDirectoryPicker";
+import Modal from "./ui/Modal";
+import SkeletonList from "./ui/Skeleton";
 
 interface LibraryPreviewSample {
     path: string;
@@ -114,50 +115,10 @@ export default function WatchFolders() {
     const [previewLoading, setPreviewLoading] = useState(false);
     const [previewData, setPreviewData] = useState<LibraryPreviewResponse | null>(null);
     const [previewError, setPreviewError] = useState<string | null>(null);
-    const customizePanelRef = useRef<HTMLDivElement | null>(null);
-    const customizeLastFocusedRef = useRef<HTMLElement | null>(null);
-
     const closeCustomize = () => {
         setCustomizeDir(null);
         setProfileDraft(null);
     };
-
-    useEffect(() => {
-        if (!customizeDir) return;
-
-        setAppShellInert(true);
-        customizeLastFocusedRef.current = document.activeElement as HTMLElement | null;
-        const panel = customizePanelRef.current;
-        if (panel) {
-            const focusables = focusableElements(panel);
-            (focusables[0] ?? panel).focus();
-        }
-
-        const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === "Escape") {
-                event.preventDefault();
-                closeCustomize();
-                return;
-            }
-            if (event.key !== "Tab") return;
-            const root = customizePanelRef.current;
-            if (!root) return;
-            const focusables = focusableElements(root);
-            if (focusables.length === 0) { event.preventDefault(); root.focus(); return; }
-            const first = focusables[0];
-            const last = focusables[focusables.length - 1];
-            const current = document.activeElement as HTMLElement | null;
-            if (event.shiftKey && current === first) { event.preventDefault(); last.focus(); }
-            else if (!event.shiftKey && current === last) { event.preventDefault(); first.focus(); }
-        };
-
-        document.addEventListener("keydown", onKeyDown);
-        return () => {
-            document.removeEventListener("keydown", onKeyDown);
-            setAppShellInert(false);
-            customizeLastFocusedRef.current?.focus();
-        };
-    }, [customizeDir]);
 
     const builtinProfiles = useMemo(
         () => profiles.filter((profile) => profile.builtin),
@@ -528,9 +489,7 @@ export default function WatchFolders() {
             )}
 
             {loading ? (
-                <div className="text-center py-8 text-helios-slate animate-pulse text-sm">
-                    Loading folders...
-                </div>
+                <SkeletonList count={3} itemClassName="h-14 w-full" />
             ) : (
                 <>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -666,16 +625,15 @@ export default function WatchFolders() {
                 }}
             />
 
-            {customizeDir && profileDraft ? (
-                <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 backdrop-blur-sm">
-                    <div
-                        ref={customizePanelRef}
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="customize-profile-title"
-                        tabIndex={-1}
-                        className="w-full max-w-2xl rounded-lg border border-helios-line/20 bg-helios-surface p-6 shadow-2xl outline-none"
-                    >
+            <Modal
+                open={customizeDir !== null && profileDraft !== null}
+                onClose={closeCustomize}
+                labelledBy="customize-profile-title"
+                maxWidth="max-w-2xl"
+                panelClassName="p-6"
+            >
+                {customizeDir && profileDraft ? (
+                    <>
                         <div className="flex items-start justify-between gap-4">
                             <div>
                                 <h3 id="customize-profile-title" className="text-lg font-semibold text-helios-ink">Customize Profile</h3>
@@ -812,9 +770,9 @@ export default function WatchFolders() {
                                 </button>
                             </div>
                         </form>
-                    </div>
-                </div>
-            ) : null}
+                    </>
+                ) : null}
+            </Modal>
 
             <ServerDirectoryPicker
                 open={pickerOpen}
@@ -827,17 +785,15 @@ export default function WatchFolders() {
                 }}
             />
 
-            {previewPath !== null ? (
-                <div
-                    className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
-                    role="dialog"
-                    aria-modal="true"
-                    aria-labelledby="preview-modal-title"
-                    onClick={(e) => {
-                        if (e.target === e.currentTarget) closePreview();
-                    }}
-                >
-                    <div className="w-full max-w-2xl rounded-xl border border-helios-line/20 bg-helios-surface p-6 shadow-2xl">
+            <Modal
+                open={previewPath !== null}
+                onClose={closePreview}
+                labelledBy="preview-modal-title"
+                maxWidth="max-w-2xl"
+                panelClassName="rounded-xl p-6"
+            >
+                {previewPath !== null ? (
+                    <>
                         <div className="flex items-start justify-between gap-4">
                             <div className="min-w-0">
                                 <h3
@@ -973,9 +929,9 @@ export default function WatchFolders() {
                                 </div>
                             ) : null}
                         </div>
-                    </div>
-                </div>
-            ) : null}
+                    </>
+                ) : null}
+            </Modal>
         </div>
     );
 }

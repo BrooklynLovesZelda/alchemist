@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { withErrorBoundary } from "./ErrorBoundary";
-import { createPortal } from "react-dom";
 import { AlertTriangle, Copy, Sparkles, Zap, Search } from "lucide-react";
 import { apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
 import ConfirmDialog from "./ui/ConfirmDialog";
 import { JobDetailModal } from "./jobs/JobDetailModal";
+import EmptyState from "./ui/EmptyState";
 import { getStatusBadge } from "./jobs/jobStatusBadge";
 import { useJobDetailController } from "./jobs/useJobDetailController";
 
@@ -253,15 +253,11 @@ export default function LibraryIntelligence() {
                     )}
 
                     {data.duplicate_groups.length === 0 ? (
-                        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-helios-line/30 bg-helios-surface p-10 text-center">
-                            <AlertTriangle size={28} className="text-helios-slate/40" />
-                            <p className="text-sm font-medium text-helios-ink">
-                                No duplicate groups found
-                            </p>
-                            <p className="max-w-xs text-xs text-helios-slate">
-                                Every tracked basename in your library appears to be unique.
-                            </p>
-                        </div>
+                        <EmptyState
+                            icon={AlertTriangle}
+                            title="No duplicate groups found"
+                            detail="Every tracked basename in your library appears to be unique."
+                        />
                     ) : (
                         <div className="flex flex-col gap-3">
                             {data.duplicate_groups.map((group) => (
@@ -319,25 +315,22 @@ export default function LibraryIntelligence() {
                 </>
             )}
 
-            {typeof document !== "undefined" && createPortal(
-                <JobDetailModal
-                    focusedJob={focusedJob}
-                    detailDialogRef={detailDialogRef}
-                    detailLoading={detailLoading}
-                    onClose={closeJobDetails}
-                    focusedDecision={focusedDecision}
-                    focusedFailure={focusedFailure}
-                    focusedJobLogs={focusedJobLogs}
-                    shouldShowFfmpegOutput={shouldShowFfmpegOutput}
-                    completedEncodeStats={completedEncodeStats}
-                    focusedEmptyState={focusedEmptyState}
-                    openConfirm={openConfirm}
-                    handleAction={handleAction}
-                    handlePriority={handlePriority}
-                    getStatusBadge={getStatusBadge}
-                />,
-                document.body,
-            )}
+            <JobDetailModal
+                focusedJob={focusedJob}
+                detailDialogRef={detailDialogRef}
+                detailLoading={detailLoading}
+                onClose={closeJobDetails}
+                focusedDecision={focusedDecision}
+                focusedFailure={focusedFailure}
+                focusedJobLogs={focusedJobLogs}
+                shouldShowFfmpegOutput={shouldShowFfmpegOutput}
+                completedEncodeStats={completedEncodeStats}
+                focusedEmptyState={focusedEmptyState}
+                openConfirm={openConfirm}
+                handleAction={handleAction}
+                handlePriority={handlePriority}
+                getStatusBadge={getStatusBadge}
+            />
 
             <ConfirmDialog
                 open={confirmState !== null}

@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { AlertCircle, CheckCircle, Loader2 } from "lucide-react";
-import { ReviewCard } from "./SetupControls";
+import { ReviewCard, StepHeader } from "./SetupControls";
 import type { FsPreviewResponse, HardwareInfo, SetupSettings, SetupSummaryItem } from "./types";
 
 interface ReviewStepProps {
@@ -37,10 +37,11 @@ export default function ReviewStep({
 
     return (
         <motion.div key="review" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-            <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-helios-ink flex items-center gap-2"><CheckCircle size={20} className="text-helios-solar" />Final Review</h2>
-                <p className="text-sm text-helios-slate">Review the effective server paths, processing rules, and automation choices before Alchemist writes the config and starts the first scan.</p>
-            </div>
+            <StepHeader
+                icon={<CheckCircle size={20} className="text-helios-solar" />}
+                title="Final Review"
+                subtitle="Review the effective server paths, processing rules, and automation choices before Alchemist writes the config and starts the first scan."
+            />
 
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
                 {setupSummary.map((item) => (

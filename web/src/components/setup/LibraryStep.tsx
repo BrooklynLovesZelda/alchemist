@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, ChevronRight, Folder, FolderOpen, X } from "lucide-react";
 import { apiJson, isApiError } from "../../lib/api";
 import type { FsPreviewResponse } from "./types";
+import { StepHeader } from "./SetupControls";
 
 interface LibraryStepProps {
     dirInput: string;
@@ -196,15 +197,12 @@ export default function LibraryStep({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-6"
         >
-            <div className="space-y-1">
-                <h2 className="flex items-center gap-2 text-xl font-semibold text-helios-ink">
-                    <FolderOpen size={20} className="text-helios-solar" />
-                    Library Selection
-                </h2>
-                <p className="text-sm text-helios-slate">
-                    Choose folders Alchemist should scan and watch for new media.
-                </p>
-            </div>
+            <StepHeader
+                icon={<FolderOpen size={20} className="text-helios-solar" />}
+                title="Library Selection"
+                subtitle="Choose folders Alchemist should scan and watch for new media."
+                className="space-y-1"
+            />
 
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <input

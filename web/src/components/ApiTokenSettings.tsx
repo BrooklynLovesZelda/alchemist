@@ -3,6 +3,7 @@ import { KeyRound, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
 import ConfirmDialog from "./ui/ConfirmDialog";
+import SkeletonList from "./ui/Skeleton";
 
 type ApiTokenAccessLevel = "read_only" | "full_access" | "arr_webhook" | "jellyfin";
 
@@ -156,7 +157,7 @@ export default function ApiTokenSettings() {
             </form>
 
             {loading ? (
-                <div className="text-sm text-helios-slate animate-pulse">Loading API tokens…</div>
+                <SkeletonList count={3} itemClassName="h-16 w-full" />
             ) : (
                 <div className="space-y-3">
                     {tokens.map((token) => (
@@ -188,7 +189,7 @@ export default function ApiTokenSettings() {
                             <button
                                 onClick={() => setPendingDeleteId(token.id)}
                                 disabled={Boolean(token.revoked_at)}
-                                className="rounded-lg border border-red-500/20 p-2 text-red-500 hover:bg-red-500/10 disabled:opacity-40"
+                                className="rounded-lg border border-status-error/20 p-2 text-status-error hover:bg-status-error/10 disabled:opacity-40"
                                 aria-label={`Revoke API token ${token.name}`}
                             >
                                 <Trash2 size={16} />

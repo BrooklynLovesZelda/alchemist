@@ -323,7 +323,7 @@ export default function AppearanceSettings() {
             </div>
 
             {error && (
-                <div className="py-2.5 px-4 rounded-xl flex items-center gap-2 border border-red-500/20 bg-red-500/10 text-red-500">
+                <div className="py-2.5 px-4 rounded-lg flex items-center gap-2 border border-status-error/20 bg-status-error/10 text-status-error">
                     <AlertCircle size={16} />
                     <span className="text-xs font-semibold">{error}</span>
                 </div>

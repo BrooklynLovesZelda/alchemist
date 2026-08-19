@@ -1,9 +1,8 @@
-import type { ReactNode } from "react";
 import { motion } from "framer-motion";
 import { AlertCircle, Bell, Calendar, Cpu, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import clsx from "clsx";
 import { DEFAULT_NOTIFICATION_DRAFT, EVENT_OPTIONS, WEEKDAY_OPTIONS } from "./constants";
-import { LabeledInput, LabeledSelect, ToggleRow } from "./SetupControls";
+import { LabeledInput, LabeledSelect, ToggleRow, SectionHeader, StepHeader } from "./SetupControls";
 import type { HardwareInfo, NotificationTargetConfig, ScheduleWindowConfig, SetupSettings } from "./types";
 
 interface RuntimeStepProps {
@@ -18,28 +17,6 @@ interface RuntimeStepProps {
     onScheduleChange: (value: SetupSettings["schedule"]) => void;
     onScheduleDraftChange: (value: ScheduleWindowConfig) => void;
     onNotificationDraftChange: (value: NotificationTargetConfig) => void;
-}
-
-interface SectionHeaderProps {
-    icon: ReactNode;
-    eyebrow: string;
-    title: string;
-    body: string;
-}
-
-function SectionHeader({ icon, eyebrow, title, body }: SectionHeaderProps) {
-    return (
-        <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-helios-solar/10 p-2 text-helios-solar">
-                {icon}
-            </div>
-            <div>
-                <p className="text-xs font-semibold uppercase text-helios-slate/70">{eyebrow}</p>
-                <h3 className="mt-1 text-base font-semibold text-helios-ink">{title}</h3>
-                <p className="mt-1 text-sm leading-relaxed text-helios-slate">{body}</p>
-            </div>
-        </div>
-    );
 }
 
 const formatCodec = (codec: string) => (codec === "h264" ? "H.264" : codec.toUpperCase());
@@ -82,15 +59,12 @@ export default function RuntimeStep({
 
     return (
         <motion.div key="runtime" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-8">
-            <div className="space-y-2">
-                <h2 className="flex items-center gap-2 text-xl font-semibold text-helios-ink">
-                    <ShieldCheck size={20} className="text-helios-solar" />
-                    Hardware, Notifications & Automation
-                </h2>
-                <p className="max-w-3xl text-sm leading-relaxed text-helios-slate">
-                    Finish the long-term operating profile: which encoders may run, when work is allowed, and where alerts should go.
-                </p>
-            </div>
+            <StepHeader
+                icon={<ShieldCheck size={20} className="text-helios-solar" />}
+                title="Hardware, Notifications & Automation"
+                subtitle="Finish the long-term operating profile: which encoders may run, when work is allowed, and where alerts should go."
+                className="max-w-3xl space-y-2"
+            />
 
             <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_1fr]">
                 <section className="space-y-5 rounded-lg border border-helios-line/20 bg-helios-surface p-5">
@@ -200,7 +174,7 @@ export default function RuntimeStep({
                                     <div className="text-sm font-semibold text-helios-ink">{window.start_time} - {window.end_time}</div>
                                     <div className="mt-1 text-xs text-helios-slate">{window.days_of_week.map((day) => WEEKDAY_OPTIONS[day]).join(", ")}</div>
                                 </div>
-                                <button type="button" onClick={() => onScheduleChange({ windows: schedule.windows.filter((_, current) => current !== index) })} className="inline-flex items-center gap-1.5 rounded-md border border-red-500/20 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10">
+                                <button type="button" onClick={() => onScheduleChange({ windows: schedule.windows.filter((_, current) => current !== index) })} className="inline-flex items-center gap-1.5 rounded-md border border-status-error/20 px-3 py-2 text-xs font-semibold text-status-error hover:bg-status-error/10">
                                     <Trash2 size={13} />
                                     Remove
                                 </button>
@@ -269,7 +243,7 @@ export default function RuntimeStep({
                                     <div className="text-sm font-semibold text-helios-ink">{target.name}</div>
                                     <div className="mt-1 truncate text-xs text-helios-slate" title={target.endpoint_url}>{target.endpoint_url}</div>
                                 </div>
-                                <button type="button" onClick={() => onNotificationsChange({ ...notifications, targets: notifications.targets.filter((_, current) => current !== index) })} className="inline-flex items-center gap-1.5 rounded-md border border-red-500/20 px-3 py-2 text-xs font-semibold text-red-400 hover:bg-red-500/10">
+                                <button type="button" onClick={() => onNotificationsChange({ ...notifications, targets: notifications.targets.filter((_, current) => current !== index) })} className="inline-flex items-center gap-1.5 rounded-md border border-status-error/20 px-3 py-2 text-xs font-semibold text-status-error hover:bg-status-error/10">
                                     <Trash2 size={13} />
                                     Remove
                                 </button>

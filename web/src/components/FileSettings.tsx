@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { AlertTriangle, Save } from "lucide-react";
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
+import Button from "./ui/Button";
 
 interface FileSettings {
     delete_source: boolean;
@@ -137,11 +138,11 @@ export default function FileSettings() {
                         </p>
                     </div>
 
-                    <div className="p-4 bg-red-500/5 border border-red-500/20 rounded-xl space-y-3">
+                    <div className="p-4 bg-status-error/5 border border-status-error/20 rounded-lg space-y-3">
                         <div className="flex items-start gap-3">
-                            <AlertTriangle className="text-red-500 shrink-0 mt-0.5" size={16} />
+                            <AlertTriangle className="text-status-error shrink-0 mt-0.5" size={16} />
                             <div className="flex-1">
-                                <h3 className="text-sm font-bold text-red-600 dark:text-red-400">Destructive Policy</h3>
+                                <h3 className="text-sm font-bold text-status-error">Destructive Policy</h3>
                                 <p className="text-xs text-helios-slate mt-1 mb-3">
                                     Enabling "Delete Source" will permanently remove the original file after a successful transcode. This action cannot be undone.
                                 </p>
@@ -150,7 +151,7 @@ export default function FileSettings() {
                                         type="checkbox"
                                         checked={settings.delete_source}
                                         onChange={e => setSettings({ ...settings, delete_source: e.target.checked })}
-                                        className="rounded border-red-500/30 text-red-500 focus:ring-red-500 bg-red-500/10"
+                                        className="rounded border-status-error/30 text-status-error focus:ring-status-error bg-status-error/10"
                                     />
                                     <span className="text-sm font-medium text-helios-ink">Delete source file after success</span>
                                 </label>
@@ -176,14 +177,10 @@ export default function FileSettings() {
                     </section>
 
                     <div className="flex justify-end pt-2">
-                        <button
-                            onClick={handleSave}
-                            disabled={saving}
-                            className="flex items-center gap-2 px-6 py-2 bg-helios-solar text-helios-main font-bold rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                        >
+                        <Button onClick={handleSave} disabled={saving}>
                             <Save size={16} />
                             {saving ? "Saving..." : "Save Settings"}
-                        </button>
+                        </Button>
                     </div>
                 </div>
             )}

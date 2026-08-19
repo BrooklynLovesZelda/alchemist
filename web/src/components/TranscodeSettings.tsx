@@ -11,6 +11,9 @@ import {
 import { apiAction, apiJson, isApiError } from "../lib/api";
 import { showToast } from "../lib/toast";
 import { cn } from "../lib/cn";
+import { ToggleSwitch } from "./ui/FormControls";
+import Button from "./ui/Button";
+import SkeletonList from "./ui/Skeleton";
 
 interface TranscodeSettingsPayload {
     concurrent_jobs: number;
@@ -137,11 +140,11 @@ export default function TranscodeSettings() {
     };
 
     if (loading) {
-        return <div className="p-8 text-helios-slate animate-pulse">Loading settings...</div>;
+        return <SkeletonList count={5} itemClassName="h-14 w-full" className="p-8" />;
     }
 
     if (!settings) {
-        return <div className="p-8 text-red-500">Failed to load settings.</div>;
+        return <div className="p-8 text-status-error">Failed to load settings.</div>;
     }
 
     const commentaryShortcutEnabled = commentaryShortcutKeywords.every((keyword) =>
@@ -175,7 +178,7 @@ export default function TranscodeSettings() {
             </div>
 
             {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm font-semibold">
+                <div className="p-4 bg-status-error/10 border border-status-error/20 text-status-error rounded-lg text-sm font-semibold">
                     {error}
                 </div>
             )}
@@ -260,16 +263,11 @@ export default function TranscodeSettings() {
                         <p className="text-xs font-medium text-helios-slate">Allow Fallback</p>
                         <p className="text-xs text-helios-slate mt-1">If preferred codec is unavailable, use the best available fallback.</p>
                     </div>
-                    <div className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            id="fallback-toggle"
-                            type="checkbox"
-                            checked={settings.allow_fallback}
-                            onChange={(e) => setSettings({ ...settings, allow_fallback: e.target.checked })}
-                            className="sr-only peer"
-                        />
-                        <div className="w-10 h-5 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border-helios-line/30 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-helios-solar"></div>
-                    </div>
+                    <ToggleSwitch
+                        checked={settings.allow_fallback}
+                        onChange={(checked) => setSettings({ ...settings, allow_fallback: checked })}
+                        label="Allow Fallback"
+                    />
                 </div>
 
                 <div className="md:col-span-2 space-y-3 pt-2">
@@ -304,42 +302,36 @@ export default function TranscodeSettings() {
                             <p className="text-xs font-medium text-helios-slate">Strip commentary tracks</p>
                             <p className="text-xs text-helios-slate mt-1">Adds built-in title keywords for common commentary tracks.</p>
                         </div>
-                        <div className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                id="commentary-toggle"
-                                type="checkbox"
-                                checked={commentaryShortcutEnabled}
-                                onChange={(e) => {
-                                    const checked = e.target.checked;
-                                    if (checked) {
-                                        const nextKeywords = [...settings.stream_rules.strip_audio_by_title];
-                                        for (const keyword of commentaryShortcutKeywords) {
-                                            if (
-                                                !nextKeywords.some(
-                                                    (entry) => entry.trim().toLowerCase() === keyword
-                                                )
-                                            ) {
-                                                nextKeywords.push(keyword);
-                                            }
+                        <ToggleSwitch
+                            checked={commentaryShortcutEnabled}
+                            label="Strip commentary tracks"
+                            onChange={(checked) => {
+                                if (checked) {
+                                    const nextKeywords = [...settings.stream_rules.strip_audio_by_title];
+                                    for (const keyword of commentaryShortcutKeywords) {
+                                        if (
+                                            !nextKeywords.some(
+                                                (entry) => entry.trim().toLowerCase() === keyword
+                                            )
+                                        ) {
+                                            nextKeywords.push(keyword);
                                         }
-                                        updateStreamRules({ strip_audio_by_title: nextKeywords });
-                                        return;
                                     }
+                                    updateStreamRules({ strip_audio_by_title: nextKeywords });
+                                    return;
+                                }
 
-                                    updateStreamRules({
-                                        strip_audio_by_title:
-                                            settings.stream_rules.strip_audio_by_title.filter(
-                                                (entry) =>
-                                                    !commentaryShortcutKeywords.includes(
-                                                        entry.trim().toLowerCase()
-                                                    )
-                                            ),
-                                    });
-                                }}
-                                className="sr-only peer"
-                            />
-                            <div className="w-10 h-5 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border-helios-line/30 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-helios-solar"></div>
-                        </div>
+                                updateStreamRules({
+                                    strip_audio_by_title:
+                                        settings.stream_rules.strip_audio_by_title.filter(
+                                            (entry) =>
+                                                !commentaryShortcutKeywords.includes(
+                                                    entry.trim().toLowerCase()
+                                                )
+                                        ),
+                                });
+                            }}
+                        />
                     </div>
 
                     <div className="space-y-3">
@@ -385,20 +377,15 @@ export default function TranscodeSettings() {
                             <p className="text-xs font-medium text-helios-slate">Keep only default audio track</p>
                             <p className="text-xs text-helios-slate mt-1">Strip all audio tracks except the one marked as default by the source file.</p>
                         </div>
-                        <div className="relative inline-flex items-center cursor-pointer">
-                            <input
-                                id="default-audio-toggle"
-                                type="checkbox"
-                                checked={settings.stream_rules.keep_only_default_audio}
-                                onChange={(e) =>
-                                    updateStreamRules({
-                                        keep_only_default_audio: e.target.checked,
-                                    })
-                                }
-                                className="sr-only peer"
-                            />
-                            <div className="w-10 h-5 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border-helios-line/30 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-helios-solar"></div>
-                        </div>
+                        <ToggleSwitch
+                            checked={settings.stream_rules.keep_only_default_audio}
+                            onChange={(checked) =>
+                                updateStreamRules({
+                                    keep_only_default_audio: checked,
+                                })
+                            }
+                            label="Keep only default audio track"
+                        />
                     </div>
                 </div>
 
@@ -548,14 +535,10 @@ export default function TranscodeSettings() {
             </div>
 
             <div className="flex justify-end pt-4 border-t border-helios-line/10">
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex items-center gap-2 bg-helios-solar text-helios-main font-bold px-6 py-3 rounded-md hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
+                <Button onClick={handleSave} disabled={saving}>
                     <Save size={18} />
                     {saving ? "Saving..." : "Save Settings"}
-                </button>
+                </Button>
             </div>
         </div>
     );

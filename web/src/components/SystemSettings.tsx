@@ -8,6 +8,8 @@ import {
 } from "../lib/telemetryAvailability";
 import { showToast } from "../lib/toast";
 import LibraryDoctor from "./LibraryDoctor";
+import { ToggleSwitch } from "./ui/FormControls";
+import Button from "./ui/Button";
 
 interface SystemSettingsPayload {
     monitoring_poll_interval: number;
@@ -174,7 +176,7 @@ export default function SystemSettings() {
     }
 
     if (!settings) {
-        return <div className="p-8 text-red-500">Failed to load system settings.</div>;
+        return <div className="p-8 text-status-error">Failed to load system settings.</div>;
     }
 
     return (
@@ -288,7 +290,7 @@ export default function SystemSettings() {
             </div>
 
             {error && (
-                <div className="p-4 bg-red-500/10 border border-red-500/20 text-red-500 rounded-lg text-sm font-semibold">{error}</div>
+                <div className="p-4 bg-status-error/10 border border-status-error/20 text-status-error rounded-lg text-sm font-semibold">{error}</div>
             )}
 
             {success && (
@@ -344,7 +346,7 @@ export default function SystemSettings() {
                                     updateSettings("conversion_upload_limit_gb", next);
                                 }
                             }}
-                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink"
+                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink focus:border-helios-solar focus:ring-1 focus:ring-helios-solar outline-none transition-all"
                         />
                         <p className="text-xs text-helios-slate">
                             Requests above this size are rejected before the server accepts the upload.
@@ -367,7 +369,7 @@ export default function SystemSettings() {
                                     updateSettings("conversion_download_retention_hours", next);
                                 }
                             }}
-                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink"
+                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink focus:border-helios-solar focus:ring-1 focus:ring-helios-solar outline-none transition-all"
                         />
                         <p className="text-xs text-helios-slate">
                             Completed conversion files are kept until download, then cleaned up after this window.
@@ -392,7 +394,7 @@ export default function SystemSettings() {
                         <select
                             value={settings.update_channel}
                             onChange={(e) => updateSettings("update_channel", e.target.value as SystemSettingsPayload["update_channel"])}
-                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink"
+                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink focus:border-helios-solar focus:ring-1 focus:ring-helios-solar outline-none transition-all"
                         >
                             <option value="stable">Stable</option>
                             <option value="rc">Release Candidate</option>
@@ -416,7 +418,7 @@ export default function SystemSettings() {
                                     updateSettings("update_check_interval_hours", next);
                                 }
                             }}
-                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink"
+                            className="w-full rounded-lg border border-helios-line/30 bg-helios-surface px-3 py-2 text-sm text-helios-ink focus:border-helios-solar focus:ring-1 focus:ring-helios-solar outline-none transition-all"
                         />
                     </label>
                 </div>
@@ -430,15 +432,11 @@ export default function SystemSettings() {
                             Refresh update metadata in the background; installs still require confirmation.
                         </p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={settings.update_auto_check}
-                            onChange={(e) => updateSettings("update_auto_check", e.target.checked)}
-                            className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border-helios-line/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-helios-solar"></div>
-                    </label>
+                    <ToggleSwitch
+                        checked={settings.update_auto_check}
+                        onChange={(checked) => updateSettings("update_auto_check", checked)}
+                        label="Automatic Checks"
+                    />
                 </div>
             </div>
 
@@ -450,15 +448,11 @@ export default function SystemSettings() {
                         </h4>
                         <p className="text-xs text-helios-slate mt-1">Automatically watch the library folders configured during setup. Custom watch folders remain active separately.</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            checked={settings.watch_enabled}
-                            onChange={(e) => updateSettings("watch_enabled", e.target.checked)}
-                            className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 bg-helios-line/20 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-helios-ink after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-helios-ink after:border-helios-line/30 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-helios-solar"></div>
-                    </label>
+                    <ToggleSwitch
+                        checked={settings.watch_enabled}
+                        onChange={(checked) => updateSettings("watch_enabled", checked)}
+                        label="Watch Library Folders"
+                    />
                 </div>
             </div>
 
@@ -471,29 +465,20 @@ export default function SystemSettings() {
                         <p className="mt-1 text-xs text-helios-slate">{TELEMETRY_TEMPORARILY_DISABLED_MESSAGE}</p>
                         <p className="mt-1 text-xs text-helios-slate/80">{TELEMETRY_USAGE_COPY}</p>
                     </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            aria-label="Anonymous Telemetry"
-                            checked={false}
-                            disabled={TELEMETRY_TEMPORARILY_DISABLED}
-                            onChange={(e) => updateSettings("enable_telemetry", e.target.checked)}
-                            className="sr-only peer"
-                        />
-                        <div className="w-11 h-6 rounded-full bg-helios-line/20 peer-focus:outline-none after:absolute after:start-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:border after:border-helios-line/30 after:bg-helios-ink after:content-[''] after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-helios-ink peer-checked:bg-helios-solar rtl:peer-checked:after:-translate-x-full peer-disabled:cursor-not-allowed peer-disabled:opacity-60"></div>
-                    </label>
+                    <ToggleSwitch
+                        checked={false}
+                        disabled={TELEMETRY_TEMPORARILY_DISABLED}
+                        onChange={(checked) => updateSettings("enable_telemetry", checked)}
+                        label="Anonymous Telemetry"
+                    />
                 </div>
             </div>
 
             <div className="flex justify-end pt-4 border-t border-helios-line/10">
-                <button
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="flex items-center gap-2 bg-helios-solar text-helios-main text-sm font-semibold px-6 py-2.5 rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50"
-                >
+                <Button onClick={handleSave} disabled={saving}>
                     <Save size={18} />
                     {saving ? "Saving..." : "Save Settings"}
-                </button>
+                </Button>
             </div>
 
             <div className="border-t border-helios-line/10 pt-6">

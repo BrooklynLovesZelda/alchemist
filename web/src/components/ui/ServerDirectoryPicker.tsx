@@ -197,7 +197,7 @@ export default function ServerDirectoryPicker({
 
                         <section className="px-6 py-5 flex flex-col overflow-y-auto min-h-0">
                             {error && (
-                                <div className="mb-4 rounded-lg border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-500">
+                                <div className="mb-4 rounded-lg border border-status-error/20 bg-status-error/10 px-4 py-3 text-sm text-status-error">
                                     {error}
                                 </div>
                             )}

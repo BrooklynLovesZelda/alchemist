@@ -5,7 +5,7 @@ import {
     TELEMETRY_TEMPORARILY_DISABLED_MESSAGE,
     TELEMETRY_USAGE_COPY,
 } from "../../lib/telemetryAvailability";
-import { LabeledInput, ToggleRow } from "./SetupControls";
+import { LabeledInput, ToggleRow, StepHeader } from "./SetupControls";
 
 interface AdminAccountStepProps {
     username: string;
@@ -40,17 +40,11 @@ export default function AdminAccountStep({
             exit={{ opacity: 0, x: -20 }}
             className="space-y-8"
         >
-            <div className="space-y-2">
-                <h2 className="text-xl font-semibold text-helios-ink flex items-center gap-2">
-                    <UserCircle size={20} className="text-helios-solar" />
-                    Create Your Admin Account
-                </h2>
-                <p className="text-sm text-helios-slate">
-                    Set up the account you'll use to access Alchemist.
-                    You can change the interface theme after setup from
-                    the Appearance settings.
-                </p>
-            </div>
+            <StepHeader
+                icon={<UserCircle size={20} className="text-helios-solar" />}
+                title="Create Your Admin Account"
+                subtitle="Set up the account you'll use to access Alchemist. You can change the interface theme after setup from the Appearance settings."
+            />
 
             <div className="max-w-lg space-y-4">
                 <LabeledInput

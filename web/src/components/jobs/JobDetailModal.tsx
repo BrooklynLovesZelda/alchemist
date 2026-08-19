@@ -1,10 +1,10 @@
 import { X, Clock, Info, Activity, Database, Zap, Maximize2, AlertCircle, RefreshCw, Ban, Trash2, ExternalLink } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, type RefObject } from "react";
 import type React from "react";
 import { apiJson } from "../../lib/api";
 import { cn } from "../../lib/cn";
 import TimeDisplay from "../ui/TimeDisplay";
+import Modal from "../ui/Modal";
 import type { JobDetail, EncodeStats, ExplanationView, LogEntry, ConfirmConfig, Job, ProcessorStatus } from "./types";
 import { formatBytes, formatDuration, logLevelClass, isJobActive } from "./types";
 import { docsUrlForCode } from "./JobExplanations";
@@ -77,32 +77,18 @@ export function JobDetailModal({
     }, [focusedJob]);
 
     return (
-        <AnimatePresence>
+        <Modal
+            open={!!focusedJob}
+            onClose={onClose}
+            labelledBy="job-details-title"
+            describedBy="job-details-path"
+            maxWidth="max-w-2xl"
+            panelRef={detailDialogRef}
+            zIndexBase={100}
+        >
             {focusedJob && (
                 <>
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={onClose}
-                        className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100]"
-                    />
-                    <div className="fixed inset-0 flex items-center justify-center pointer-events-none z-[101]">
-                        <motion.div
-                            key="modal-content"
-                            initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                            animate={{ opacity: 1, scale: 1, y: 0 }}
-                            exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                            transition={{ duration: 0.2 }}
-                            ref={detailDialogRef as React.RefObject<HTMLDivElement>}
-                            role="dialog"
-                            aria-modal="true"
-                            aria-labelledby="job-details-title"
-                            aria-describedby="job-details-path"
-                            tabIndex={-1}
-                            className="w-full max-w-2xl bg-helios-surface border border-helios-line/20 rounded-lg shadow-2xl pointer-events-auto overflow-hidden mx-4"
-                        >
-                            {/* Header */}
+                    {/* Header */}
                             <div className="p-6 border-b border-helios-line/10 flex justify-between items-start gap-4 bg-helios-surface-soft/50">
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3 mb-1">
@@ -548,17 +534,15 @@ export function JobDetailModal({
                                                     onConfirm: () => handleAction(focusedJob.job.id, "delete"),
                                                 })
                                             }
-                                            className="px-4 py-2 text-red-500 hover:bg-red-500/5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all"
+                                            className="px-4 py-2 text-status-error hover:bg-status-error/5 rounded-lg text-sm font-bold flex items-center gap-2 transition-all"
                                         >
                                             <Trash2 size={14} /> Delete
                                         </button>
                                     )}
                                 </div>
                             </div>
-                        </motion.div>
-                    </div>
                 </>
             )}
-        </AnimatePresence>
+        </Modal>
     );
 }

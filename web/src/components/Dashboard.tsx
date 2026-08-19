@@ -400,7 +400,7 @@ function Dashboard() {
 
                 {/* Right column: weekly savings + bundle stats */}
                 <div className="flex flex-col gap-4 h-full">
-                    <div className="rounded-lg bg-helios-surface border border-helios-line/30 p-5 flex-1 flex flex-col">
+                    <div className="rounded-lg bg-helios-surface border border-helios-line/40 p-6 flex-1 flex flex-col">
                         <h3 className="text-sm font-semibold text-helios-ink mb-4 flex items-center gap-2">
                             <HardDrive size={15} className="text-helios-solar" />
                             Last 7 Days
@@ -431,7 +431,7 @@ function Dashboard() {
                         )}
                     </div>
 
-                    <div className="rounded-lg bg-helios-surface border border-helios-line/30 p-5 space-y-3">
+                    <div className="rounded-lg bg-helios-surface border border-helios-line/40 p-6 space-y-3">
                         <h3 className="text-sm font-semibold text-helios-ink flex items-center gap-2">
                             <Clock3 size={15} className="text-helios-solar" />
                             Queue ETA
@@ -472,7 +472,7 @@ function Dashboard() {
 
                     {/* Config summary */}
                     {bundle && (
-                        <div className="rounded-lg bg-helios-surface border border-helios-line/30 p-5 space-y-3">
+                        <div className="rounded-lg bg-helios-surface border border-helios-line/40 p-6 space-y-3">
                             <h3 className="text-sm font-semibold text-helios-ink">Configuration</h3>
                             <div className="space-y-2">
                                 <div className="flex items-center justify-between text-xs">
@@ -506,7 +506,7 @@ function Dashboard() {
             </div>
 
             {/* Resource Monitor */}
-            <div className="rounded-lg bg-helios-surface border border-helios-line/30 p-5">
+            <div className="rounded-lg bg-helios-surface border border-helios-line/40 p-6">
                 <h3 className="text-sm font-semibold text-helios-slate mb-5 flex items-center gap-2">
                     <Activity size={15} className="text-helios-solar" />
                     System Health
